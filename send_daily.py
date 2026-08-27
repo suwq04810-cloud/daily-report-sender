@@ -280,7 +280,7 @@ def main():
     # 2. 判断是否为周五 (weekday == 4) 发送周报
     # 💡 提示：如果现在想测试周报，可直接解开 is_friday = True 测试
     is_friday = datetime.now().weekday() == 4
-    # is_friday = True  # <-- 测试周报时，解开这行注释即可立即测试！
+    is_friday = True  # <-- 测试周报时，解开这行注释即可立即测试！
 
     if is_friday:
         print("检测到今天是周五，正在发送周报...")
