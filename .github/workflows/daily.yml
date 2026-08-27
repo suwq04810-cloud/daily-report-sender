@@ -2,7 +2,7 @@ name: 自动发送工作日报
 
 on:
   schedule:
-    - cron: '0 14 * * 1-5'
+    - cron: '55 13 * * 1-5'
   workflow_dispatch:
 
 jobs:
