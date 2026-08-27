@@ -4,6 +4,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
 import smtplib
+import time
 import openpyxl
 
 
@@ -88,24 +89,36 @@ def generate_daily_html(wb):
 
 
 # =========================================================================
-# 2. 周报 HTML 生成（提取 '周工作简报'）
+# 2. 周报 HTML 生成（完整 1:1 提取 '周工作简报' 全表 14 行）
 # =========================================================================
 def generate_weekly_html(wb):
     sheet = wb["周工作简报"] if "周工作简报" in wb.sheetnames else wb.active
 
-    # 提取工程师信息
-    name = str(sheet["F4"].value or "苏文强").strip()
-    phone = str(sheet["H4"].value or "16611601206").strip()
+    # 1. 顶部基本信息提取
+    r1_title = str(sheet["A1"].value or "能力提升-学习周报").strip()
+    curr_prod = str(sheet["C2"].value or "云计算&中级").strip()
+    target_prod = str(sheet["G2"].value or "云计算&高级").strip()
+    report_period = str(
+        sheet["J2"].value or datetime.now().strftime("%Y年%m月%d日")
+    ).strip()
+    plan_period = str(sheet["C3"].value or "20周").strip()
+    user_name = str(sheet["F4"].value or "苏文强").strip()
+    user_phone = str(sheet["H4"].value or "16611601206").strip()
 
-    # 提取本周工作 (A6) 和 下周计划 (A8)
+    # 2. 核心内容与计划提取
     this_week_work = (
         str(sheet["A6"].value or "").strip().replace("\n", "<br>")
     )
     next_week_plan = (
-        str(sheet["A8"].value or "按项目计划推进").strip().replace("\n", "<br>")
+        str(sheet["A8"].value or "学习华为私有云部署")
+        .strip()
+        .replace("\n", "<br>")
     )
 
-    # 🎯 周报主题固定为：苏文强学习周报
+    # 3. 风险与求助数据提取
+    risk_desc = str(sheet["C11"].value or "/").strip()
+    help_desc = str(sheet["B14"].value or "/").strip()
+
     subject = "苏文强学习周报"
 
     html_content = f"""
@@ -120,51 +133,55 @@ def generate_weekly_html(wb):
             max-width: 900px;
             border: 1px solid #000000;
             font-family: 'Microsoft YaHei', '微软雅黑', 'SimSun', '宋体', sans-serif;
+            font-size: 10pt;
             table-layout: fixed;
             box-sizing: border-box;
         }}
         .weekly-table td {{
             border: 1px solid #000000;
-            padding: 6px 8px;
+            padding: 5px 6px;
             box-sizing: border-box;
-        }}
-        .info-header {{
-            background-color: #DBE5F1;
-            font-family: 'SimSun', '宋体', serif;
-            font-size: 12pt;
-            font-weight: bold;
-            color: #000000;
             text-align: center;
-            width: 25%;
+            vertical-align: middle;
         }}
-        .info-val {{
-            background-color: #FFFF99;
-            font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;
-            font-size: 10pt;
-            font-weight: bold;
-            color: #000000;
-            text-align: center;
-        }}
-        .block-header {{
+        /* 模块顶头大栏 (蓝紫底色 #CCCCFF / 深蓝字 #0000FF) */
+        .header-banner {{
             background-color: #CCCCFF;
-            font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;
             font-size: 14pt;
             font-weight: bold;
             color: #0000FF;
-            text-align: center;
             height: 36px;
         }}
-        .work-content {{
-            background-color: #FFFF99;
-            font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;
-            font-size: 10pt;
+        /* 浅冰蓝标签格 #DBE5F1 */
+        .lbl-cell {{
+            background-color: #DBE5F1;
+            font-weight: bold;
             color: #000000;
+        }}
+        /* 白底数据格 #FFFFFF */
+        .val-cell {{
+            background-color: #FFFFFF;
+            color: #000000;
+        }}
+        /* 黄底数据格 #FFFF99 */
+        .yellow-val {{
+            background-color: #FFFF99;
+            color: #000000;
+        }}
+        /* 黄底大正文区 */
+        .yellow-content {{
+            background-color: #FFFF99;
             text-align: left;
             vertical-align: top;
             padding: 12px 10px;
             white-space: pre-wrap;
             line-height: 1.6;
-            min-height: 200px;
+            color: #000000;
+            font-size: 10pt;
+        }}
+        .red-text {{
+            color: #FF0000;
+            font-weight: bold;
         }}
         .signature {{
             margin-top: 25px;
@@ -179,35 +196,112 @@ def generate_weekly_html(wb):
     </head>
     <body style="margin: 0; padding: 10px; background-color: #FFFFFF;">
         <table class="weekly-table">
-            <!-- 交付工程师信息栏 -->
+            <!-- Row 1: 顶部大标题 -->
             <tr>
-                <td class="info-header" colspan="2">交付工程师信息</td>
-                <td class="info-val" colspan="2">{name}</td>
-                <td class="info-val" colspan="2">{phone}</td>
+                <td colspan="10" class="header-banner" style="font-size: 16pt;">{r1_title}</td>
             </tr>
 
-            <!-- 本周工作内容表头 -->
+            <!-- Row 2: 产品与周期 -->
             <tr>
-                <td class="block-header" colspan="6">本周工作内容</td>
+                <td colspan="2" class="lbl-cell">当前产品<br>&级别</td>
+                <td colspan="2" class="val-cell">{curr_prod}</td>
+                <td colspan="2" class="lbl-cell">目标产品<br>&级别</td>
+                <td colspan="2" class="val-cell">{target_prod}</td>
+                <td class="lbl-cell">报告周期</td>
+                <td class="val-cell" style="font-size: 9pt;">{report_period}</td>
             </tr>
 
-            <!-- 本周工作内容主体 -->
+            <!-- Row 3: 计划周期 -->
             <tr>
-                <td class="work-content" colspan="6">
+                <td colspan="2" class="lbl-cell">计划周期</td>
+                <td colspan="2" class="val-cell">{plan_period}</td>
+                <td colspan="2" class="lbl-cell">姓名</td>
+                <td colspan="2" class="val-cell">{user_name}</td>
+                <td class="lbl-cell">电话</td>
+                <td class="val-cell">{user_phone}</td>
+            </tr>
+
+            <!-- Row 4: 交付工程师信息 -->
+            <tr>
+                <td colspan="4" class="lbl-cell" style="font-size: 11pt;">交付工程师信息</td>
+                <td colspan="3" class="yellow-val" style="font-weight: bold;">{user_name}</td>
+                <td colspan="3" class="yellow-val" style="font-weight: bold;">{user_phone}</td>
+            </tr>
+
+            <!-- Row 5: 本周工作内容 表头 -->
+            <tr>
+                <td colspan="10" class="header-banner">本周工作内容</td>
+            </tr>
+
+            <!-- Row 6: 本周工作内容 主体 -->
+            <tr>
+                <td colspan="10" class="yellow-content">
                     {this_week_work}
                 </td>
             </tr>
 
-            <!-- 下周工作计划表头 -->
+            <!-- Row 7: 下周工作计划 表头 -->
             <tr>
-                <td class="block-header" colspan="6">下周工作计划</td>
+                <td colspan="10" class="header-banner">下周工作计划</td>
             </tr>
 
-            <!-- 下周工作计划主体 -->
+            <!-- Row 8: 下周工作计划 主体 -->
             <tr>
-                <td class="work-content" colspan="6" style="min-height: 100px;">
+                <td colspan="10" class="yellow-content" style="min-height: 80px;">
                     {next_week_plan}
                 </td>
+            </tr>
+
+            <!-- Row 9: 项目风险问题 表头 -->
+            <tr>
+                <td colspan="10" class="header-banner">项目风险问题</td>
+            </tr>
+
+            <!-- Row 10: 风险表头 -->
+            <tr>
+                <td class="lbl-cell" style="width: 6%;">序号</td>
+                <td class="lbl-cell red-text" style="width: 10%;">产生日期</td>
+                <td colspan="2" class="lbl-cell">问题描述&影响</td>
+                <td class="lbl-cell" style="width: 10%;">紧急程度</td>
+                <td colspan="2" class="lbl-cell">规避措施、解决进展</td>
+                <td class="lbl-cell" style="width: 10%;">责任人</td>
+                <td class="lbl-cell" style="width: 8%;">状态</td>
+                <td class="lbl-cell" style="width: 12%;">实际关闭日期</td>
+            </tr>
+
+            <!-- Row 11: 风险数据行 -->
+            <tr>
+                <td class="val-cell">1</td>
+                <td class="val-cell red-text">/</td>
+                <td colspan="2" class="val-cell">{risk_desc}</td>
+                <td class="val-cell">/</td>
+                <td colspan="2" class="val-cell">/</td>
+                <td class="val-cell">/</td>
+                <td class="val-cell">/</td>
+                <td class="val-cell">/</td>
+            </tr>
+
+            <!-- Row 12: 求助 表头 -->
+            <tr>
+                <td colspan="10" class="header-banner">求助</td>
+            </tr>
+
+            <!-- Row 13: 求助表头 -->
+            <tr>
+                <td class="lbl-cell" style="width: 6%;">序号</td>
+                <td colspan="3" class="lbl-cell">求助事宜</td>
+                <td colspan="2" class="lbl-cell">求助人</td>
+                <td colspan="2" class="lbl-cell">要求解决时间</td>
+                <td colspan="2" class="lbl-cell">备注</td>
+            </tr>
+
+            <!-- Row 14: 求助数据行 -->
+            <tr>
+                <td class="val-cell">1</td>
+                <td colspan="3" class="val-cell">{help_desc}</td>
+                <td colspan="2" class="val-cell">/</td>
+                <td colspan="2" class="val-cell">/</td>
+                <td colspan="2" class="val-cell">/</td>
             </tr>
         </table>
 
@@ -240,7 +334,7 @@ def send_email_message(subject, html_body, to_list, cc_list):
     server.login(mail_user, mail_pass)
     server.sendmail(mail_user, to_list + cc_list, msg.as_string())
     server.quit()
-    print(f"✅ 邮件「{subject}」发送成功！收件人: {to_list}, 抄送: {cc_list}")
+    print(f"✅ 邮件「{subject}」发送成功！收件人: {to_list}")
 
 
 # =========================================================================
@@ -258,7 +352,7 @@ def main():
     # 【收发模式配置】
     # =========================================================================
 
-    # 👉 模式一：【测试模式】（测试时所有邮件只发给自己，方便检查效果）
+    # 👉 模式一：【测试模式】（测试时所有邮件只发给自己）
     daily_to = ["wqsud@isoftstone.com"]
     daily_cc = []
     weekly_to = ["wqsud@isoftstone.com"]
@@ -272,18 +366,19 @@ def main():
 
     # =========================================================================
 
-    # 1. 发送日报（周一至周五必发）
+    # 1. 发送日报（周一至周五每天必发）
+    print("\n--- [1/2] 正在处理日报 ---")
     daily_subj, daily_html = generate_daily_html(wb)
-    print(f"正在发送日报: {daily_subj} ...")
     send_email_message(daily_subj, daily_html, daily_to, daily_cc)
 
-    # 2. 判断是否为周五 (weekday == 4) 发送周报
-    # 💡 提示：如果现在想测试周报，可直接解开 is_friday = True 测试
+    # 2. 判断是否为周五发送周报
+    # 💡 提示：如果当前需要强制测试周报，保持下面 is_friday = True 即可；测试完改回 weekday() == 4
     is_friday = datetime.now().weekday() == 4
-    is_friday = True  # <-- 测试周报时，解开这行注释即可立即测试！
+    is_friday = True  # <-- 当前开启强制测试周报，你点 Run workflow 会连发【日报+周报】！
 
     if is_friday:
-        print("检测到今天是周五，正在发送周报...")
+        print("\n--- [2/2] 正在处理周报 ---")
+        time.sleep(2)  # 间隔 2 秒确保邮件服务器稳定接收两封
         weekly_subj, weekly_html = generate_weekly_html(wb)
         send_email_message(weekly_subj, weekly_html, weekly_to, weekly_cc)
     else:
