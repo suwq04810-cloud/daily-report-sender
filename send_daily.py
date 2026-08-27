@@ -35,12 +35,12 @@ def generate_daily_html(wb):
             border: 1px solid #000000;
             table-layout: fixed;
             box-sizing: border-box;
-            font-family: SimSun, '宋体', 'Microsoft YaHei', '微软雅黑', sans-serif;
+            font-family: SimSun, '宋体', serif;
         }}
         .daily-table td {{ border: 1px solid #000000; box-sizing: border-box; }}
         .title-row {{
             background-color: #8DB4E2;
-            font-family: "SimSun", "宋体", serif;
+            font-family: SimSun, "宋体", serif;
             font-size: 18pt;
             font-weight: bold;
             color: #000000;
@@ -55,11 +55,11 @@ def generate_daily_html(wb):
             height: 30px;
             padding: 0 8px;
         }}
-        .section-title {{ font-family: "SimSun", "宋体", serif; font-size: 12pt; font-weight: bold; color: #000000; }}
-        .red-tip {{ font-family: "SimSun", "宋体", serif; font-size: 10pt; font-weight: bold; color: #FF0000; }}
+        .section-title {{ font-family: SimSun, "宋体", serif; font-size: 12pt; font-weight: bold; color: #000000; }}
+        .red-tip {{ font-family: SimSun, "宋体", serif; font-size: 10pt; font-weight: bold; color: #FF0000; }}
         .content-box {{
             background-color: #FFFFFF;
-            font-family: "STXihei", "华文细黑", "Microsoft YaHei", "微软雅黑", sans-serif;
+            font-family: "STXihei", "华文细黑", "Microsoft YaHei", sans-serif;
             font-size: 10pt;
             font-weight: bold;
             color: #000000;
@@ -90,7 +90,7 @@ def generate_daily_html(wb):
 
 
 # =========================================================================
-# 2. 周报 HTML 生成（严格遵循全新全局与色彩规范，8列精准网格）
+# 2. 周报 HTML 生成（按图一标准 1:1 像素级深蓝粗体与浓黑宋体重构）
 # =========================================================================
 def generate_weekly_html(wb):
     sheet = wb["周工作简报"] if "周工作简报" in wb.sheetnames else wb.active
@@ -119,7 +119,7 @@ def generate_weekly_html(wb):
     subject = "苏文强学习周报"
 
     # 红斜杠占位符
-    red_slash = '<span style="color: #FF0000; font-weight: bold;">/</span>'
+    red_slash = '<span style="color: #FF0000; font-weight: bold; font-family: SimSun, \'宋体\';">/</span>'
 
     html_content = f"""
     <!DOCTYPE html>
@@ -132,7 +132,7 @@ def generate_weekly_html(wb):
             width: 100%;
             max-width: 900px;
             border: 1px solid #000000;
-            font-family: SimSun, '宋体', 'Microsoft YaHei', '微软雅黑', sans-serif;
+            font-family: SimSun, '宋体', serif;
             table-layout: fixed;
             box-sizing: border-box;
         }}
@@ -143,37 +143,52 @@ def generate_weekly_html(wb):
             text-align: center;
             vertical-align: middle;
         }}
-        /* 1. 大标题栏 */
+        /* 1. 顶头大标题：淡紫蓝底色 #CCCCFF，浓郁纯深蓝字 #0000FF，18pt 粗体 */
         .title-banner {{
             background-color: #CCCCFF;
-            color: #0000FF;
+            color: #0000FF !important;
+            font-family: SimSun, '宋体', serif;
             font-size: 18pt;
-            font-weight: bold;
+            font-weight: 900;
             text-align: center;
             height: 44px;
+            letter-spacing: 1px;
         }}
-        /* 2. 基本信息表 (纯白底) */
+        /* 2. 基本信息表 (纯白底，宋体加粗) */
         .info-cell {{
             background-color: #FFFFFF;
-            font-size: 10pt;
+            font-family: SimSun, '宋体', serif;
+            font-size: 10.5pt;
             color: #000000;
         }}
         .bold-txt {{
             font-weight: bold;
         }}
-        /* 3. 分栏标题条 (淡紫蓝底 #CCCCFF, 深蓝字 #0000FF, 14pt 加粗) */
+        /* 3. 分栏标题条：纯深蓝 #0000FF，14pt 加粗，带下划线质感 */
         .section-bar {{
             background-color: #CCCCFF;
-            color: #0000FF;
+            color: #0000FF !important;
+            font-family: SimSun, '宋体', serif;
             font-size: 14pt;
-            font-weight: bold;
+            font-weight: 900;
+            text-align: center;
+            height: 36px;
+            text-decoration: underline;
+        }}
+        .section-bar-plain {{
+            background-color: #CCCCFF;
+            color: #0000FF !important;
+            font-family: SimSun, '宋体', serif;
+            font-size: 14pt;
+            font-weight: 900;
             text-align: center;
             height: 36px;
         }}
-        /* 4. 黄底工作内容 (必须绝对靠左对齐 text-align: left) */
+        /* 4. 黄底正文内容：采用宋体 SimSun 10.5pt，解决发细发虚问题，笔画浓黑扎实 */
         .content-yellow {{
             background-color: #FFFF99;
             color: #000000;
+            font-family: SimSun, '宋体', serif;
             font-size: 10.5pt;
             line-height: 1.6;
             text-align: left !important;
@@ -181,10 +196,11 @@ def generate_weekly_html(wb):
             padding: 10px 12px;
             white-space: pre-wrap;
         }}
-        /* 表头黄底居中格 */
+        /* 表头黄底加粗格 */
         .header-yellow {{
             background-color: #FFFF99;
             color: #000000;
+            font-family: SimSun, '宋体', serif;
             font-size: 10pt;
             font-weight: bold;
             text-align: center;
@@ -192,6 +208,7 @@ def generate_weekly_html(wb):
         .val-yellow {{
             background-color: #FFFF99;
             color: #000000;
+            font-family: SimSun, '宋体', serif;
             font-size: 10pt;
             text-align: center;
         }}
@@ -220,7 +237,7 @@ def generate_weekly_html(wb):
                 <td class="info-cell bold-txt">目标产品&级别</td>
                 <td class="info-cell">{target_prod}</td>
                 <td class="info-cell bold-txt">报告周期</td>
-                <td colspan="3" class="info-cell" style="font-size: 9pt;">{report_period}</td>
+                <td colspan="3" class="info-cell" style="font-size: 9.5pt;">{report_period}</td>
             </tr>
 
             <!-- 2. 【基本信息表】第 2 行 -->
@@ -240,12 +257,12 @@ def generate_weekly_html(wb):
                 <td colspan="2" class="info-cell">{user_phone}</td>
             </tr>
 
-            <!-- 3. 【分栏标题条 - 本周工作内容】 -->
+            <!-- 3. 【分栏标题条 - 本周工作内容】 (深蓝加粗下划线) -->
             <tr>
-                <td colspan="8" class="section-bar">本周工作内容</td>
+                <td colspan="8" class="section-bar"><u>本周工作内容</u></td>
             </tr>
 
-            <!-- 4. 【本周工作内容正文】 (必须靠左对齐) -->
+            <!-- 4. 【本周工作内容正文】 (宋体 10.5pt 浓黑靠左) -->
             <tr>
                 <td colspan="8" class="content-yellow">
                     {this_week_work}
@@ -254,24 +271,24 @@ def generate_weekly_html(wb):
 
             <!-- 5. 【分栏标题条 - 下周工作计划】 -->
             <tr>
-                <td colspan="8" class="section-bar">下周工作计划</td>
+                <td colspan="8" class="section-bar"><u>下周工作计划</u></td>
             </tr>
 
-            <!-- 5. 【下周工作计划正文】 (靠左对齐) -->
+            <!-- 5. 【下周工作计划正文】 -->
             <tr>
-                <td colspan="8" class="content-yellow bold-txt" style="min-height: 50px;">
+                <td colspan="8" class="content-yellow bold-txt" style="min-height: 40px;">
                     {next_week_plan}
                 </td>
             </tr>
 
             <!-- 6. 【项目风险问题】 -->
             <tr>
-                <td colspan="8" class="section-bar">项目风险问题</td>
+                <td colspan="8" class="section-bar-plain">项目风险问题</td>
             </tr>
-            <!-- 风险表头 (8列全部为 #FFFF99 加粗) -->
+            <!-- 风险表头 -->
             <tr>
                 <td class="header-yellow" style="width: 7%;">序号</td>
-                <td class="header-yellow" style="width: 12%;"><span style="color: #FF0000;">产生日期</span></td>
+                <td class="header-yellow" style="width: 12%;"><span style="color: #FF0000; font-weight: bold;">产生日期</span></td>
                 <td class="header-yellow" style="width: 25%;">问题描述&影响</td>
                 <td class="header-yellow" style="width: 10%;">紧急程度</td>
                 <td class="header-yellow" style="width: 20%;">规避措施、解决进展</td>
@@ -279,23 +296,23 @@ def generate_weekly_html(wb):
                 <td class="header-yellow" style="width: 8%;">状态</td>
                 <td class="header-yellow" style="width: 10%;">实际关闭日期</td>
             </tr>
-            <!-- 风险数据行 (黄底、红斜杠) -->
+            <!-- 风险数据行 -->
             <tr>
                 <td class="val-yellow">1</td>
                 <td class="val-yellow">{red_slash}</td>
                 <td class="val-yellow">{red_slash}</td>
                 <td class="val-yellow">{red_slash}</td>
                 <td class="val-yellow">{red_slash}</td>
-                <td class="val-yellow">{red_slash}</td>
+                <td class="val-yellow">{red_yellow if 'red_yellow' in locals() else red_slash}</td>
                 <td class="val-yellow">{red_slash}</td>
                 <td class="val-yellow">{red_slash}</td>
             </tr>
 
             <!-- 7. 【求助】 -->
             <tr>
-                <td colspan="8" class="section-bar">求助</td>
+                <td colspan="8" class="section-bar-plain">求助</td>
             </tr>
-            <!-- 求助表头 (5 项占满 8 列) -->
+            <!-- 求助表头 -->
             <tr>
                 <td class="header-yellow" style="width: 7%;">序号</td>
                 <td colspan="3" class="header-yellow">求助事宜</td>
@@ -303,7 +320,7 @@ def generate_weekly_html(wb):
                 <td class="header-yellow" style="width: 16%;">要求解决时间</td>
                 <td colspan="2" class="header-yellow">备注</td>
             </tr>
-            <!-- 求助数据行 (黄底、红斜杠) -->
+            <!-- 求助数据行 -->
             <tr>
                 <td class="val-yellow">1</td>
                 <td colspan="3" class="val-yellow">{red_slash}</td>
@@ -323,7 +340,7 @@ def generate_weekly_html(wb):
 
 
 # =========================================================================
-# 3. 发送邮件底层函数（带独立连接管理）
+# 3. 发送邮件底层函数
 # =========================================================================
 def send_email_message(subject, html_body, to_list, cc_list):
     mail_user = os.environ.get("MAIL_USER")
@@ -346,7 +363,7 @@ def send_email_message(subject, html_body, to_list, cc_list):
 
 
 # =========================================================================
-# 4. 主流程调度：确保两封邮件按序完整送达
+# 4. 主流程调度
 # =========================================================================
 def main():
     excel_file = "daily_report.xlsx"
@@ -366,7 +383,7 @@ def main():
     weekly_to = ["wqsud@isoftstone.com"]
     weekly_cc = []
 
-    # 👉 模式二：【正式发送模式】（正式上线时启用）
+    # 👉 模式二：【正式发送模式】（正式上线时启用以下配置）
     # daily_to = ["hdliuf@isoftstone.com"]
     # daily_cc = ["weiliuay@isoftstone.com", "zycaoc@isoftstone.com", "nawangam@isoftstone.com"]
     # weekly_to = ["zycaoc@isoftstone.com"]
@@ -374,20 +391,20 @@ def main():
 
     # =========================================================================
 
-    # 1. 第一步：发送【日报】
+    # 1. 发送【日报】
     print("\n==============================================")
     print(" [1/2] 正在投递：今日工作日报 ...")
     daily_subj, daily_html = generate_daily_html(wb)
     send_email_message(daily_subj, daily_html, daily_to, daily_cc)
     print("==============================================")
 
-    # 2. 第二步：判断周五并发送【周报】
-    # 💡 提示：当前强制设置为 True 供你测试双发；正式上线请改为 datetime.now().weekday() == 4
-    is_friday = True  # <-- 当前测试双发开启
+    # 2. 发送【周报】
+    # 💡 提示：当前设置为 True 供测试；正式使用时请改为 datetime.now().weekday() == 4
+    is_friday = True  # <-- 测试双发开启
 
     if is_friday:
-        print("\n⏳ 等待 4 秒，确保邮件服务器安全接收下一封...")
-        time.sleep(4)  # 留足间隔，避免邮件服务器同一秒合并或去重
+        print("\n⏳ 缓冲 4 秒，确保两封邮件独立送达...")
+        time.sleep(4)
 
         print("==============================================")
         print(" [2/2] 正在投递：学习周报 ...")
