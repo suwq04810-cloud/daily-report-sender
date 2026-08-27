@@ -93,11 +93,11 @@ def generate_daily_html(wb):
 def generate_weekly_html(wb):
     sheet = wb["周工作简报"] if "周工作简报" in wb.sheetnames else wb.active
 
-    # 提取工程师信息：姓名(F4)、电话(H4)
+    # 提取工程师信息
     name = str(sheet["F4"].value or "苏文强").strip()
     phone = str(sheet["H4"].value or "16611601206").strip()
 
-    # 提取工作内容与计划 (A6 为本周工作，A8 为下周计划)
+    # 提取本周工作 (A6) 和 下周计划 (A8)
     this_week_work = (
         str(sheet["A6"].value or "").strip().replace("\n", "<br>")
     )
@@ -105,11 +105,9 @@ def generate_weekly_html(wb):
         str(sheet["A8"].value or "按项目计划推进").strip().replace("\n", "<br>")
     )
 
-    # 主题命名
-    today_str = datetime.now().strftime("%m月%d日")
-    subject = f"【周工作简报】{name}-{today_str}"
+    # 🎯 周报主题固定为：苏文强学习周报
+    subject = "苏文强学习周报"
 
-    # 严格按照周报排版规范构建 HTML
     html_content = f"""
     <!DOCTYPE html>
     <html>
@@ -130,7 +128,6 @@ def generate_weekly_html(wb):
             padding: 6px 8px;
             box-sizing: border-box;
         }}
-        /* 交付人员信息栏 */
         .info-header {{
             background-color: #DBE5F1;
             font-family: 'SimSun', '宋体', serif;
@@ -148,7 +145,6 @@ def generate_weekly_html(wb):
             color: #000000;
             text-align: center;
         }}
-        /* 模块大表头 (蓝紫色高亮) */
         .block-header {{
             background-color: #CCCCFF;
             font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;
@@ -158,7 +154,6 @@ def generate_weekly_html(wb):
             text-align: center;
             height: 36px;
         }}
-        /* 周报内容汇总区 (淡黄底色、多行展示、顶端对齐) */
         .work-content {{
             background-color: #FFFF99;
             font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;
@@ -226,7 +221,7 @@ def generate_weekly_html(wb):
 
 
 # =========================================================================
-# 3. 发送邮件通用函数
+# 3. 发送邮件底层函数
 # =========================================================================
 def send_email_message(subject, html_body, to_list, cc_list):
     mail_user = os.environ.get("MAIL_USER")
@@ -245,11 +240,11 @@ def send_email_message(subject, html_body, to_list, cc_list):
     server.login(mail_user, mail_pass)
     server.sendmail(mail_user, to_list + cc_list, msg.as_string())
     server.quit()
-    print(f"✅ 邮件「{subject}」发送成功！")
+    print(f"✅ 邮件「{subject}」发送成功！收件人: {to_list}, 抄送: {cc_list}")
 
 
 # =========================================================================
-# 4. 主流程调度：周一至周四发日报，周五自动连发【日报+周报】
+# 4. 主调度流程
 # =========================================================================
 def main():
     excel_file = "daily_report.xlsx"
@@ -259,32 +254,40 @@ def main():
 
     wb = openpyxl.load_workbook(excel_file, data_only=True)
 
-    # ------------------ 收件人模式配置 ------------------
-    # 👉 模式一：【测试模式】（发给自己测试）
-    to_list = ["wqsud@isoftstone.com"]
-    cc_list = []
+    # =========================================================================
+    # 【收发模式配置】
+    # =========================================================================
 
-    # 👉 模式二：【正式发送模式】（上线时启用）
-    # to_list = ["hdliuf@isoftstone.com"]
-    # cc_list = ["weiliuay@isoftstone.com", "zycaoc@isoftstone.com", "nawangam@isoftstone.com"]
-    # ----------------------------------------------------
+    # 👉 模式一：【测试模式】（测试时所有邮件只发给自己，方便检查效果）
+    daily_to = ["wqsud@isoftstone.com"]
+    daily_cc = []
+    weekly_to = ["wqsud@isoftstone.com"]
+    weekly_cc = []
 
-    # 1. 发送日报（周一到周五每天必发）
+    # 👉 模式二：【正式发送模式】（上线时启用以下配置）
+    # daily_to = ["hdliuf@isoftstone.com"]
+    # daily_cc = ["weiliuay@isoftstone.com", "zycaoc@isoftstone.com", "nawangam@isoftstone.com"]
+    # weekly_to = ["zycaoc@isoftstone.com"]
+    # weekly_cc = []
+
+    # =========================================================================
+
+    # 1. 发送日报（周一至周五必发）
     daily_subj, daily_html = generate_daily_html(wb)
     print(f"正在发送日报: {daily_subj} ...")
-    send_email_message(daily_subj, daily_html, to_list, cc_list)
+    send_email_message(daily_subj, daily_html, daily_to, daily_cc)
 
-    # 2. 判断今天是否为周五 (weekday == 4 为周五)
-    # 💡 提示：如果现在想测试周报，可以把 False 改成 True，测试完改回 weekday() == 4
+    # 2. 判断是否为周五 (weekday == 4) 发送周报
+    # 💡 提示：如果现在想测试周报，可直接解开 is_friday = True 测试
     is_friday = datetime.now().weekday() == 4
-    is_friday = True  # <-- 测试周报时，解开这行注释即可立即测试周报！
+    # is_friday = True  # <-- 测试周报时，解开这行注释即可立即测试！
 
     if is_friday:
-        print("检测到今天是周五，准备自动发送周报...")
+        print("检测到今天是周五，正在发送周报...")
         weekly_subj, weekly_html = generate_weekly_html(wb)
-        send_email_message(weekly_subj, weekly_html, to_list, cc_list)
+        send_email_message(weekly_subj, weekly_html, weekly_to, weekly_cc)
     else:
-        print("今天不是周五，无需发送周报。")
+        print("今天不是周五，跳过周报发送。")
 
 
 if __name__ == "__main__":
