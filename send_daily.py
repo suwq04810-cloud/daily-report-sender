@@ -177,16 +177,16 @@ def send_mail():
     # =========================================================================
 
     # 👉 模式一：【测试模式】（当前生效：只发给你自己，抄送为空）
-    to_list = ["wqsud@isoftstone.com"]
-    cc_list = []
+    # to_list = ["wqsud@isoftstone.com"]
+    # cc_list = []
 
     # 👉 模式二：【正式发送模式】（正式上线时：解开这里的注释，把上面的模式一注释掉）
-    # to_list = ["hdliuf@isoftstone.com"]
-    # cc_list = [
-    #     "weiliuay@isoftstone.com",
-    #     "zycaoc@isoftstone.com",
-    #     "nawangam@isoftstone.com"
-    # ]
+    to_list = ["hdliuf@isoftstone.com"]
+    cc_list = [
+         "weiliuay@isoftstone.com",
+         "zycaoc@isoftstone.com",
+         "nawangam@isoftstone.com"
+     ]
 
     # =========================================================================
 
