@@ -131,12 +131,7 @@ def send_mail():
 
     subject, html_body = excel_to_exact_html(excel_file)
 
-    to_list = ["hdliuf@isoftstone.com"]
-    cc_list = [
-        "weiliuay@isoftstone.com",
-        "zycaoc@isoftstone.com",
-        "nawangam@isoftstone.com",
-    ]
+    to_list = ["wqsud@isoftstone.com"]
 
     mail_user = os.environ.get("MAIL_USER")
     mail_pass = os.environ.get("MAIL_PASS")
