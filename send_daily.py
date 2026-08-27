@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
+import os
+import smtplib
+import time
 from datetime import datetime
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import os
-import smtplib
-import time
 import openpyxl
 
 
@@ -22,75 +23,65 @@ def generate_daily_html(wb):
     today_work = str(sheet["A3"].value or "").strip().replace("\n", "<br>")
     tomorrow_plan = str(sheet["A5"].value or "").strip().replace("\n", "<br>")
 
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="utf-8">
-    <style>
-        .daily-table {{
-            border-collapse: collapse;
-            width: 100%;
-            max-width: 800px;
-            border: 1px solid #000000;
-            table-layout: fixed;
-            box-sizing: border-box;
-            font-family: SimSun, '宋体', serif;
-        }}
-        .daily-table td {{ border: 1px solid #000000; box-sizing: border-box; }}
-        .title-row {{
-            background-color: #8DB4E2;
-            font-family: SimSun, "宋体", serif;
-            font-size: 18pt;
-            font-weight: bold;
-            color: #000000;
-            text-align: center;
-            vertical-align: middle;
-            height: 46px;
-        }}
-        .section-header {{
-            background-color: #DBE5F1;
-            text-align: left;
-            vertical-align: middle;
-            height: 30px;
-            padding: 0 8px;
-        }}
-        .section-title {{ font-family: SimSun, "宋体", serif; font-size: 12pt; font-weight: bold; color: #000000; }}
-        .red-tip {{ font-family: SimSun, "宋体", serif; font-size: 10pt; font-weight: bold; color: #FF0000; }}
-        .content-box {{
-            background-color: #FFFFFF;
-            font-family: "STXihei", "华文细黑", "Microsoft YaHei", sans-serif;
-            font-size: 10pt;
-            font-weight: bold;
-            color: #000000;
-            text-align: left;
-            vertical-align: top;
-            padding: 12px 10px;
-            white-space: pre-wrap;
-            line-height: 1.6;
-        }}
-        .bottom-bar {{ background-color: #DBE5F1; height: 18px; }}
-        .signature {{ margin-top: 25px; font-size: 12px; color: #333333; border-top: 1px solid #CCCCCC; padding-top: 6px; width: 220px; font-family: Arial, sans-serif; }}
-    </style>
-    </head>
-    <body style="margin: 0; padding: 10px; background-color: #FFFFFF;">
-        <table class="daily-table">
-            <tr><td class="title-row">{title}</td></tr>
-            <tr><td class="section-header"><span class="section-title">今日工作概述</span><span class="red-tip">（重点工作、重大风险说明 (加粗标红）、周边求助 (加粗标红），小于3条）</span></td></tr>
-            <tr><td class="content-box" style="height: 120px;">{today_work}</td></tr>
-            <tr><td class="section-header"><span class="section-title">明日工作计划</span><span class="red-tip">（重点工作、重大风险说明 (加粗标红）、周边求助 (加粗标红），小于3条）</span></td></tr>
-            <tr><td class="content-box" style="height: 90px;">{tomorrow_plan}</td></tr>
-            <tr><td class="bottom-bar"></td></tr>
-        </table>
-        <div class="signature">{os.environ.get("MAIL_USER")}</div>
-    </body>
-    </html>
-    """
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<body style="margin: 0; padding: 10px; background-color: #FFFFFF;">
+    <table style="border-collapse: collapse; width: 100%; max-width: 800px; border: 1px solid #000000; table-layout: fixed; box-sizing: border-box; font-family: SimSun, '宋体', 'Microsoft YaHei', '微软雅黑', sans-serif;">
+        <!-- 1. 标题行 (中浅蓝底 #8DB4E2, 18pt 宋体加粗) -->
+        <tr>
+            <td style="border: 1px solid #000000; background-color: #8DB4E2; font-family: 'SimSun', '宋体', serif; font-size: 18pt; font-weight: bold; color: #000000; text-align: center; vertical-align: middle; height: 46px; padding: 6px 10px;">
+                {title}
+            </td>
+        </tr>
+
+        <!-- 2. 今日工作概述 栏目头 (淡蓝冰底 #DBE5F1, 黑色加粗12pt + 红色加粗10pt) -->
+        <tr>
+            <td style="border: 1px solid #000000; background-color: #DBE5F1; text-align: left; vertical-align: middle; height: 30px; padding: 4px 10px;">
+                <span style="font-family: 'SimSun', '宋体', serif; font-size: 12pt; font-weight: bold; color: #000000;">今日工作概述</span>
+                <span style="font-family: 'SimSun', '宋体', serif; font-size: 10pt; font-weight: bold; color: #FF0000;">（重点工作、重大风险说明(加粗标红）、周边求助(加粗标红），小于3条）</span>
+            </td>
+        </tr>
+
+        <!-- 3. 今日工作内容 正文 (纯白底, 华文细黑/微软雅黑 10pt 加粗, 靠左对齐) -->
+        <tr>
+            <td style="border: 1px solid #000000; background-color: #FFFFFF; font-family: 'STXihei', '华文细黑', 'Microsoft YaHei', '微软雅黑', sans-serif; font-size: 10pt; font-weight: bold; color: #000000; text-align: left; vertical-align: top; padding: 12px 10px; white-space: pre-wrap; line-height: 1.6; min-height: 120px; height: 120px;">
+                {today_work}
+            </td>
+        </tr>
+
+        <!-- 4. 明日工作计划 栏目头 (淡蓝冰底 #DBE5F1, 黑色加粗12pt + 红色加粗10pt) -->
+        <tr>
+            <td style="border: 1px solid #000000; background-color: #DBE5F1; text-align: left; vertical-align: middle; height: 30px; padding: 4px 10px;">
+                <span style="font-family: 'SimSun', '宋体', serif; font-size: 12pt; font-weight: bold; color: #000000;">明日工作计划</span>
+                <span style="font-family: 'SimSun', '宋体', serif; font-size: 10pt; font-weight: bold; color: #FF0000;">（重点工作、重大风险说明(加粗标红）、周边求助(加粗标红），小于3条）</span>
+            </td>
+        </tr>
+
+        <!-- 5. 明日工作计划 正文 (纯白底, 华文细黑/微软雅黑 10pt 加粗, 靠左对齐) -->
+        <tr>
+            <td style="border: 1px solid #000000; background-color: #FFFFFF; font-family: 'STXihei', '华文细黑', 'Microsoft YaHei', '微软雅黑', sans-serif; font-size: 10pt; font-weight: bold; color: #000000; text-align: left; vertical-align: top; padding: 12px 10px; white-space: pre-wrap; line-height: 1.6; min-height: 90px; height: 90px;">
+                {tomorrow_plan}
+            </td>
+        </tr>
+
+        <!-- 6. 底部封底装饰条 -->
+        <tr>
+            <td style="border: 1px solid #000000; background-color: #DBE5F1; height: 18px; padding: 0;"></td>
+        </tr>
+    </table>
+    <div style="margin-top: 25px; font-size: 12px; color: #333333; border-top: 1px solid #CCCCCC; padding-top: 6px; width: 220px; font-family: Arial, sans-serif;">
+        {os.environ.get('MAIL_USER', '')}
+    </div>
+</body>
+</html>"""
     return title, html_content
 
 
 # =========================================================================
-# 2. 周报 HTML 生成（按图一标准 1:1 像素级深蓝粗体与浓黑宋体重构）
+# 2. 周报 HTML 生成（强化内联样式，彻底解决邮件客户端字体发细、颜色发浅问题）
 # =========================================================================
 def generate_weekly_html(wb):
     sheet = wb["周工作简报"] if "周工作简报" in wb.sheetnames else wb.active
@@ -118,234 +109,160 @@ def generate_weekly_html(wb):
 
     subject = "苏文强学习周报"
 
-    # 红斜杠占位符
-    red_slash = '<span style="color: #FF0000; font-weight: bold; font-family: SimSun, \'宋体\';">/</span>'
+    # 红斜杠占位符 (纯红 #FF0000, 加粗)
+    red_slash = '<span style="color: #FF0000; font-weight: bold;">/</span>'
 
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="utf-8">
-    <style>
-        .weekly-container {{
-            border-collapse: collapse;
-            width: 100%;
-            max-width: 900px;
-            border: 1px solid #000000;
-            font-family: SimSun, '宋体', serif;
-            table-layout: fixed;
-            box-sizing: border-box;
-        }}
-        .weekly-container td {{
-            border: 1px solid #000000;
-            padding: 4px 6px;
-            box-sizing: border-box;
-            text-align: center;
-            vertical-align: middle;
-        }}
-        /* 1. 顶头大标题：淡紫蓝底色 #CCCCFF，浓郁纯深蓝字 #0000FF，18pt 粗体 */
-        .title-banner {{
-            background-color: #CCCCFF;
-            color: #0000FF !important;
-            font-family: SimSun, '宋体', serif;
-            font-size: 18pt;
-            font-weight: 900;
-            text-align: center;
-            height: 44px;
-            letter-spacing: 1px;
-        }}
-        /* 2. 基本信息表 (纯白底，宋体加粗) */
-        .info-cell {{
-            background-color: #FFFFFF;
-            font-family: SimSun, '宋体', serif;
-            font-size: 10.5pt;
-            color: #000000;
-        }}
-        .bold-txt {{
-            font-weight: bold;
-        }}
-        /* 3. 分栏标题条：纯深蓝 #0000FF，14pt 加粗，带下划线质感 */
-        .section-bar {{
-            background-color: #CCCCFF;
-            color: #0000FF !important;
-            font-family: SimSun, '宋体', serif;
-            font-size: 14pt;
-            font-weight: 900;
-            text-align: center;
-            height: 36px;
-            text-decoration: underline;
-        }}
-        .section-bar-plain {{
-            background-color: #CCCCFF;
-            color: #0000FF !important;
-            font-family: SimSun, '宋体', serif;
-            font-size: 14pt;
-            font-weight: 900;
-            text-align: center;
-            height: 36px;
-        }}
-        /* 4. 黄底正文内容：采用宋体 SimSun 10.5pt，解决发细发虚问题，笔画浓黑扎实 */
-        .content-yellow {{
-            background-color: #FFFF99;
-            color: #000000;
-            font-family: SimSun, '宋体', serif;
-            font-size: 10.5pt;
-            line-height: 1.6;
-            text-align: left !important;
-            vertical-align: top;
-            padding: 10px 12px;
-            white-space: pre-wrap;
-        }}
-        /* 表头黄底加粗格 */
-        .header-yellow {{
-            background-color: #FFFF99;
-            color: #000000;
-            font-family: SimSun, '宋体', serif;
-            font-size: 10pt;
-            font-weight: bold;
-            text-align: center;
-        }}
-        .val-yellow {{
-            background-color: #FFFF99;
-            color: #000000;
-            font-family: SimSun, '宋体', serif;
-            font-size: 10pt;
-            text-align: center;
-        }}
-        .signature {{
-            margin-top: 25px;
-            font-size: 12px;
-            color: #333333;
-            border-top: 1px solid #CCCCCC;
-            padding-top: 6px;
-            width: 220px;
-            font-family: Arial, sans-serif;
-        }}
-    </style>
-    </head>
-    <body style="margin: 0; padding: 10px; background-color: #FFFFFF;">
-        <table class="weekly-container">
-            <!-- 1. 【大标题栏】 -->
-            <tr>
-                <td colspan="8" class="title-banner">{r1_title}</td>
-            </tr>
+    # 统一关键样式常量（全部行内 inline 强制生效，防止邮箱客户端过滤）
+    # 标题栏：淡紫蓝底 #CCCCFF, 微软雅黑/黑体特粗 900, 纯深蓝 #0000FF, 字号 20pt
+    style_main_title = "border: 1px solid #000000; background-color: #CCCCFF; color: #0000FF; font-family: 'Microsoft YaHei', '微软雅黑', 'SimHei', '黑体', sans-serif; font-size: 20pt; font-weight: 900; text-align: center; vertical-align: middle; height: 48px; padding: 6px 10px; letter-spacing: 2px;"
 
-            <!-- 2. 【基本信息表】第 1 行 -->
-            <tr>
-                <td class="info-cell bold-txt">当前产品&级别</td>
-                <td class="info-cell">{curr_prod}</td>
-                <td class="info-cell bold-txt">目标产品&级别</td>
-                <td class="info-cell">{target_prod}</td>
-                <td class="info-cell bold-txt">报告周期</td>
-                <td colspan="3" class="info-cell" style="font-size: 9.5pt;">{report_period}</td>
-            </tr>
+    # 分栏标题栏：淡紫蓝底 #CCCCFF, 微软雅黑/黑体特粗 900, 纯深蓝 #0000FF, 字号 14pt
+    style_section_bar = "border: 1px solid #000000; background-color: #CCCCFF; color: #0000FF; font-family: 'Microsoft YaHei', '微软雅黑', 'SimHei', '黑体', sans-serif; font-size: 14pt; font-weight: 900; text-align: center; vertical-align: middle; height: 36px; padding: 4px 8px; letter-spacing: 1px;"
 
-            <!-- 2. 【基本信息表】第 2 行 -->
-            <tr>
-                <td class="info-cell bold-txt">计划周期</td>
-                <td colspan="3" class="info-cell">{plan_period}</td>
-                <td class="info-cell bold-txt">姓名</td>
-                <td class="info-cell">{user_name}</td>
-                <td class="info-cell bold-txt">电话</td>
-                <td class="info-cell">{user_phone}</td>
-            </tr>
+    # 基本信息单元格（纯白底 #FFFFFF）
+    style_info_bold = "border: 1px solid #000000; background-color: #FFFFFF; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif; font-size: 10pt; font-weight: bold; color: #000000; text-align: center; vertical-align: middle; padding: 4px 6px;"
+    style_info_val = "border: 1px solid #000000; background-color: #FFFFFF; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif; font-size: 10pt; color: #000000; text-align: center; vertical-align: middle; padding: 4px 6px;"
 
-            <!-- 2. 【基本信息表】第 3 行 -->
-            <tr>
-                <td colspan="4" class="info-cell bold-txt">交付工程师信息</td>
-                <td colspan="2" class="info-cell">{user_name}</td>
-                <td colspan="2" class="info-cell">{user_phone}</td>
-            </tr>
+    # 周工作内容正文（淡黄底 #FFFF99, 黑色, 靠左对齐 text-align: left, 行高1.6）
+    style_content_yellow = "border: 1px solid #000000; background-color: #FFFF99; color: #000000; font-family: 'Microsoft YaHei', '微软雅黑', 'SimSun', '宋体', sans-serif; font-size: 10.5pt; line-height: 1.6; text-align: left !important; vertical-align: top; padding: 12px 14px; white-space: pre-wrap;"
 
-            <!-- 3. 【分栏标题条 - 本周工作内容】 (深蓝加粗下划线) -->
-            <tr>
-                <td colspan="8" class="section-bar"><u>本周工作内容</u></td>
-            </tr>
+    # 表头黄底格（#FFFF99, 黑字加粗居中）
+    style_header_yellow = "border: 1px solid #000000; background-color: #FFFF99; color: #000000; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif; font-size: 10pt; font-weight: bold; text-align: center; vertical-align: middle; padding: 4px 6px;"
 
-            <!-- 4. 【本周工作内容正文】 (宋体 10.5pt 浓黑靠左) -->
-            <tr>
-                <td colspan="8" class="content-yellow">
-                    {this_week_work}
-                </td>
-            </tr>
+    # 数据行黄底格（#FFFF99, 居中）
+    style_val_yellow = "border: 1px solid #000000; background-color: #FFFF99; color: #000000; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif; font-size: 10pt; text-align: center; vertical-align: middle; padding: 4px 6px;"
 
-            <!-- 5. 【分栏标题条 - 下周工作计划】 -->
-            <tr>
-                <td colspan="8" class="section-bar"><u>下周工作计划</u></td>
-            </tr>
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<body style="margin: 0; padding: 10px; background-color: #FFFFFF;">
+    <table style="border-collapse: collapse; width: 100%; max-width: 900px; border: 1px solid #000000; table-layout: fixed; box-sizing: border-box; font-family: 'Microsoft YaHei', '微软雅黑', 'SimSun', '宋体', sans-serif;">
+        <!-- 1. 【大标题栏】 -->
+        <tr>
+            <td colspan="8" style="{style_main_title}">{r1_title}</td>
+        </tr>
 
-            <!-- 5. 【下周工作计划正文】 -->
-            <tr>
-                <td colspan="8" class="content-yellow bold-txt" style="min-height: 40px;">
-                    {next_week_plan}
-                </td>
-            </tr>
+        <!-- 2. 【基本信息表】第 1 行 -->
+        <tr>
+            <td style="{style_info_bold}">当前产品&级别</td>
+            <td style="{style_info_val}">{curr_prod}</td>
+            <td style="{style_info_bold}">目标产品&级别</td>
+            <td style="{style_info_val}">{target_prod}</td>
+            <td style="{style_info_bold}">报告周期</td>
+            <td colspan="3" style="{style_info_val} font-size: 9pt;">{report_period}</td>
+        </tr>
 
-            <!-- 6. 【项目风险问题】 -->
-            <tr>
-                <td colspan="8" class="section-bar-plain">项目风险问题</td>
-            </tr>
-            <!-- 风险表头 -->
-            <tr>
-                <td class="header-yellow" style="width: 7%;">序号</td>
-                <td class="header-yellow" style="width: 12%;"><span style="color: #FF0000; font-weight: bold;">产生日期</span></td>
-                <td class="header-yellow" style="width: 25%;">问题描述&影响</td>
-                <td class="header-yellow" style="width: 10%;">紧急程度</td>
-                <td class="header-yellow" style="width: 20%;">规避措施、解决进展</td>
-                <td class="header-yellow" style="width: 8%;">责任人</td>
-                <td class="header-yellow" style="width: 8%;">状态</td>
-                <td class="header-yellow" style="width: 10%;">实际关闭日期</td>
-            </tr>
-            <!-- 风险数据行 -->
-            <tr>
-                <td class="val-yellow">1</td>
-                <td class="val-yellow">{red_slash}</td>
-                <td class="val-yellow">{red_slash}</td>
-                <td class="val-yellow">{red_slash}</td>
-                <td class="val-yellow">{red_slash}</td>
-                <td class="val-yellow">{red_yellow if 'red_yellow' in locals() else red_slash}</td>
-                <td class="val-yellow">{red_slash}</td>
-                <td class="val-yellow">{red_slash}</td>
-            </tr>
+        <!-- 2. 【基本信息表】第 2 行 -->
+        <tr>
+            <td style="{style_info_bold}">计划周期</td>
+            <td colspan="3" style="{style_info_val}">{plan_period}</td>
+            <td style="{style_info_bold}">姓名</td>
+            <td style="{style_info_val}">{user_name}</td>
+            <td style="{style_info_bold}">电话</td>
+            <td style="{style_info_val}">{user_phone}</td>
+        </tr>
 
-            <!-- 7. 【求助】 -->
-            <tr>
-                <td colspan="8" class="section-bar-plain">求助</td>
-            </tr>
-            <!-- 求助表头 -->
-            <tr>
-                <td class="header-yellow" style="width: 7%;">序号</td>
-                <td colspan="3" class="header-yellow">求助事宜</td>
-                <td class="header-yellow" style="width: 12%;">求助人</td>
-                <td class="header-yellow" style="width: 16%;">要求解决时间</td>
-                <td colspan="2" class="header-yellow">备注</td>
-            </tr>
-            <!-- 求助数据行 -->
-            <tr>
-                <td class="val-yellow">1</td>
-                <td colspan="3" class="val-yellow">{red_slash}</td>
-                <td class="val-yellow">{red_slash}</td>
-                <td class="val-yellow">{red_slash}</td>
-                <td colspan="2" class="val-yellow">{red_slash}</td>
-            </tr>
-        </table>
+        <!-- 2. 【基本信息表】第 3 行 -->
+        <tr>
+            <td colspan="4" style="{style_info_bold}">交付工程师信息</td>
+            <td colspan="2" style="{style_info_val}">{user_name}</td>
+            <td colspan="2" style="{style_info_val}">{user_phone}</td>
+        </tr>
 
-        <div class="signature">
-            {os.environ.get("MAIL_USER")}
-        </div>
-    </body>
-    </html>
-    """
+        <!-- 3. 【分栏标题条 - 本周工作内容】 -->
+        <tr>
+            <td colspan="8" style="{style_section_bar}">本周工作内容</td>
+        </tr>
+
+        <!-- 4. 【本周工作内容正文】 (绝对靠左对齐) -->
+        <tr>
+            <td colspan="8" style="{style_content_yellow}">
+                {this_week_work}
+            </td>
+        </tr>
+
+        <!-- 5. 【分栏标题条 - 下周工作计划】 -->
+        <tr>
+            <td colspan="8" style="{style_section_bar}">下周工作计划</td>
+        </tr>
+
+        <!-- 5. 【下周工作计划正文】 (靠左对齐, 加粗) -->
+        <tr>
+            <td colspan="8" style="{style_content_yellow} font-weight: bold; min-height: 50px;">
+                {next_week_plan}
+            </td>
+        </tr>
+
+        <!-- 6. 【项目风险问题】 -->
+        <tr>
+            <td colspan="8" style="{style_section_bar}">项目风险问题</td>
+        </tr>
+        <!-- 风险表头 (8列全部为 #FFFF99 加粗) -->
+        <tr>
+            <td style="{style_header_yellow} width: 7%;">序号</td>
+            <td style="{style_header_yellow} width: 12%; color: #FF0000;">产生日期</td>
+            <td style="{style_header_yellow} width: 25%;">问题描述&影响</td>
+            <td style="{style_header_yellow} width: 10%;">紧急程度</td>
+            <td style="{style_header_yellow} width: 20%;">规避措施、解决进展</td>
+            <td style="{style_header_yellow} width: 8%;">责任人</td>
+            <td style="{style_header_yellow} width: 8%;">状态</td>
+            <td style="{style_header_yellow} width: 10%;">实际关闭日期</td>
+        </tr>
+        <!-- 风险数据行 (黄底、红斜杠) -->
+        <tr>
+            <td style="{style_val_yellow}">1</td>
+            <td style="{style_val_yellow}">{red_slash}</td>
+            <td style="{style_val_yellow}">{red_slash}</td>
+            <td style="{style_val_yellow}">{red_slash}</td>
+            <td style="{style_val_yellow}">{red_slash}</td>
+            <td style="{style_val_yellow}">{red_slash}</td>
+            <td style="{style_val_yellow}">{red_slash}</td>
+            <td style="{style_val_yellow}">{red_slash}</td>
+        </tr>
+
+        <!-- 7. 【求助】 -->
+        <tr>
+            <td colspan="8" style="{style_section_bar}">求助</td>
+        </tr>
+        <!-- 求助表头 (5 项占满 8 列) -->
+        <tr>
+            <td style="{style_header_yellow} width: 7%;">序号</td>
+            <td colspan="3" style="{style_header_yellow}">求助事宜</td>
+            <td style="{style_header_yellow} width: 12%;">求助人</td>
+            <td style="{style_header_yellow} width: 16%;">要求解决时间</td>
+            <td colspan="2" style="{style_header_yellow}">备注</td>
+        </tr>
+        <!-- 求助数据行 (黄底、红斜杠) -->
+        <tr>
+            <td style="{style_val_yellow}">1</td>
+            <td colspan="3" style="{style_val_yellow}">{red_slash}</td>
+            <td style="{style_val_yellow}">{red_slash}</td>
+            <td style="{style_val_yellow}">{red_slash}</td>
+            <td colspan="2" style="{style_val_yellow}">{red_slash}</td>
+        </tr>
+    </table>
+
+    <div style="margin-top: 25px; font-size: 12px; color: #333333; border-top: 1px solid #CCCCCC; padding-top: 6px; width: 220px; font-family: Arial, sans-serif;">
+        {os.environ.get('MAIL_USER', '')}
+    </div>
+</body>
+</html>"""
     return subject, html_content
 
 
 # =========================================================================
-# 3. 发送邮件底层函数
+# 3. 发送邮件底层函数（带独立连接管理）
 # =========================================================================
 def send_email_message(subject, html_body, to_list, cc_list):
     mail_user = os.environ.get("MAIL_USER")
     mail_pass = os.environ.get("MAIL_PASS")
     mail_host = os.environ.get("MAIL_HOST", "smtp.isoftstone.com")
+
+    if not mail_user or not mail_pass:
+        print("⚠️ 警告: 缺少 MAIL_USER 或 MAIL_PASS 环境变量，跳过实际发送")
+        return
 
     msg = MIMEMultipart()
     msg["From"] = f"wqsud <{mail_user}>"
@@ -363,7 +280,7 @@ def send_email_message(subject, html_body, to_list, cc_list):
 
 
 # =========================================================================
-# 4. 主流程调度
+# 4. 主流程调度：确保两封邮件按序完整送达
 # =========================================================================
 def main():
     excel_file = "daily_report.xlsx"
@@ -383,7 +300,7 @@ def main():
     weekly_to = ["wqsud@isoftstone.com"]
     weekly_cc = []
 
-    # 👉 模式二：【正式发送模式】（正式上线时启用以下配置）
+    # 👉 模式二：【正式发送模式】（正式上线时启用）
     # daily_to = ["hdliuf@isoftstone.com"]
     # daily_cc = ["weiliuay@isoftstone.com", "zycaoc@isoftstone.com", "nawangam@isoftstone.com"]
     # weekly_to = ["zycaoc@isoftstone.com"]
@@ -391,20 +308,20 @@ def main():
 
     # =========================================================================
 
-    # 1. 发送【日报】
+    # 1. 第一步：发送【日报】
     print("\n==============================================")
     print(" [1/2] 正在投递：今日工作日报 ...")
     daily_subj, daily_html = generate_daily_html(wb)
     send_email_message(daily_subj, daily_html, daily_to, daily_cc)
     print("==============================================")
 
-    # 2. 发送【周报】
-    # 💡 提示：当前设置为 True 供测试；正式使用时请改为 datetime.now().weekday() == 4
-    is_friday = True  # <-- 测试双发开启
+    # 2. 第二步：判断周五并发送【周报】
+    # 💡 提示：当前强制设置为 True 供你测试双发；正式上线请改为 datetime.now().weekday() == 4
+    is_friday = True  # <-- 当前测试双发开启
 
     if is_friday:
-        print("\n⏳ 缓冲 4 秒，确保两封邮件独立送达...")
-        time.sleep(4)
+        print("\n⏳ 等待 4 秒，确保邮件服务器安全接收下一封...")
+        time.sleep(4)  # 留足间隔，避免邮件服务器同一秒合并或去重
 
         print("==============================================")
         print(" [2/2] 正在投递：学习周报 ...")
