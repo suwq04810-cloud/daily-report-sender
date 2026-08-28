@@ -317,8 +317,8 @@ def main():
 
     # 2. 第二步：判断周五并发送【周报】
     # 💡 提示：当前强制设置为 True 供你测试双发；正式上线请改为 datetime.now().weekday() == 4
-    # is_friday = True  # <-- 当前测试双发开启
-    is_friday = (datetime.now().weekday() == 4)
+    is_friday = True  # <-- 当前测试双发开启
+    # is_friday = (datetime.now().weekday() == 4)
 
     if is_friday:
         print("\n⏳ 等待 4 秒，确保邮件服务器安全接收下一封...")
