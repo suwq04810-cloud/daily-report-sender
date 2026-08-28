@@ -295,16 +295,16 @@ def main():
     # =========================================================================
 
     # 👉 模式一：【测试模式】（测试时所有邮件只发给自己）
-    daily_to = ["wqsud@isoftstone.com"]
-    daily_cc = []
-    weekly_to = ["wqsud@isoftstone.com"]
-    weekly_cc = []
+    # daily_to = ["wqsud@isoftstone.com"]
+    # daily_cc = []
+    # weekly_to = ["wqsud@isoftstone.com"]
+    # weekly_cc = []
 
     # 👉 模式二：【正式发送模式】（正式上线时启用）
-    # daily_to = ["hdliuf@isoftstone.com"]
-    # daily_cc = ["weiliuay@isoftstone.com", "zycaoc@isoftstone.com", "nawangam@isoftstone.com"]
-    # weekly_to = ["zycaoc@isoftstone.com"]
-    # weekly_cc = []
+    daily_to = ["hdliuf@isoftstone.com"]
+    daily_cc = ["weiliuay@isoftstone.com", "zycaoc@isoftstone.com", "nawangam@isoftstone.com"]
+    weekly_to = ["zycaoc@isoftstone.com"]
+    weekly_cc = []
 
     # =========================================================================
 
@@ -317,8 +317,8 @@ def main():
 
     # 2. 第二步：判断周五并发送【周报】
     # 💡 提示：当前强制设置为 True 供你测试双发；正式上线请改为 datetime.now().weekday() == 4
-    is_friday = True  # <-- 当前测试双发开启
-    # is_friday = (datetime.now().weekday() == 4)
+    # is_friday = True  # <-- 当前测试双发开启
+    is_friday = (datetime.now().weekday() == 4)
 
     if is_friday:
         print("\n⏳ 等待 4 秒，确保邮件服务器安全接收下一封...")
