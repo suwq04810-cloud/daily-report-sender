@@ -295,16 +295,16 @@ def main():
     # =========================================================================
 
     # 👉 模式一：【测试模式】（测试时所有邮件只发给自己）
-    # daily_to = ["wqsud@isoftstone.com"]
-    # daily_cc = []
-    # weekly_to = ["wqsud@isoftstone.com"]
-    # weekly_cc = []
+    daily_to = ["wqsud@isoftstone.com"]
+    daily_cc = []
+    weekly_to = ["wqsud@isoftstone.com"]
+    weekly_cc = []
 
     # 👉 模式二：【正式发送模式】（正式上线时启用）
-    daily_to = ["hdliuf@isoftstone.com"]
-    daily_cc = ["weiliuay@isoftstone.com", "zycaoc@isoftstone.com", "nawangam@isoftstone.com"]
-    weekly_to = ["zycaoc@isoftstone.com"]
-    weekly_cc = []
+    # daily_to = ["hdliuf@isoftstone.com"]
+    # daily_cc = ["weiliuay@isoftstone.com", "zycaoc@isoftstone.com", "nawangam@isoftstone.com"]
+    # weekly_to = ["zycaoc@isoftstone.com"]
+    # weekly_cc = []
 
     # =========================================================================
 
