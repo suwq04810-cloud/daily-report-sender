@@ -83,9 +83,7 @@ def generate_daily_html(wb):
 
         <!-- 3. 今日工作内容 正文 -->
         <tr>
-            <td style="border: 1px solid #000000; background-color: #FFFFFF; font-family: 'STXihei', '华文细黑', 'Microsoft YaHei', '微软雅黑', sans-serif; font-size: 10pt; font-weight: bold; color: #000000; text-align: left; vertical-align: top; padding: 12px 10px; white-space: pre-wrap; line-height: 1.6; min-height: 120px; height: 120px;">
-                {today_work}
-            </td>
+            <td style="border: 1px solid #000000; background-color: #FFFFFF; font-family: 'STXihei', '华文细黑', 'Microsoft YaHei', '微软雅黑', sans-serif; font-size: 10pt; font-weight: bold; color: #000000; text-align: left; vertical-align: top; padding: 12px 10px; white-space: pre-wrap; line-height: 1.6; min-height: 120px; height: 120px;">{today_work}</td>
         </tr>
 
         <!-- 4. 明日工作计划 栏目头 -->
@@ -98,9 +96,7 @@ def generate_daily_html(wb):
 
         <!-- 5. 明日工作计划 正文 -->
         <tr>
-            <td style="border: 1px solid #000000; background-color: #FFFFFF; font-family: 'STXihei', '华文细黑', 'Microsoft YaHei', '微软雅黑', sans-serif; font-size: 10pt; font-weight: bold; color: #000000; text-align: left; vertical-align: top; padding: 12px 10px; white-space: pre-wrap; line-height: 1.6; min-height: 90px; height: 90px;">
-                {tomorrow_plan}
-            </td>
+            <td style="border: 1px solid #000000; background-color: #FFFFFF; font-family: 'STXihei', '华文细黑', 'Microsoft YaHei', '微软雅黑', sans-serif; font-size: 10pt; font-weight: bold; color: #000000; text-align: left; vertical-align: top; padding: 12px 10px; white-space: pre-wrap; line-height: 1.6; min-height: 90px; height: 90px;">{tomorrow_plan}</td>
         </tr>
 
         <!-- 6. 底部装饰条 -->
