@@ -14,6 +14,39 @@ import openpyxl
 
 CHINA_TZ = ZoneInfo("Asia/Shanghai")
 
+# 2026 年国务院公布的法定节假日及调休上班日。
+# 每年放假安排公布后，需要补充下一年度日期。
+HOLIDAY_DATES = frozenset({
+    "2026-01-01", "2026-01-02", "2026-01-03",
+    "2026-02-15", "2026-02-16", "2026-02-17", "2026-02-18",
+    "2026-02-19", "2026-02-20", "2026-02-21", "2026-02-22",
+    "2026-02-23",
+    "2026-04-04", "2026-04-05", "2026-04-06",
+    "2026-05-01", "2026-05-02", "2026-05-03", "2026-05-04",
+    "2026-05-05",
+    "2026-06-19", "2026-06-20", "2026-06-21",
+    "2026-09-25", "2026-09-26", "2026-09-27",
+    "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04",
+    "2026-10-05", "2026-10-06", "2026-10-07",
+})
+
+MAKEUP_WORKDAYS = frozenset({
+    "2026-01-04",
+    "2026-02-14", "2026-02-28",
+    "2026-05-09",
+    "2026-09-20",
+    "2026-10-10",
+})
+
+
+def is_china_workday(day):
+  date_key = day.isoformat()
+  if date_key in MAKEUP_WORKDAYS:
+    return True
+  if date_key in HOLIDAY_DATES:
+    return False
+  return day.weekday() < 5
+
 
 # =========================================================================
 # 0. 提取 Logo 图片转为 Base64 字符串
@@ -277,6 +310,13 @@ def send_email_message(subject, html_body, to_list, cc_list):
 # 4. 主流程调度
 # =========================================================================
 def main():
+  now_china = datetime.now(CHINA_TZ)
+  today_china = now_china.date()
+
+  if not is_china_workday(today_china):
+    print(f"⏸ {today_china.isoformat()} 为休息日，跳过日报和周报。")
+    return
+
   excel_file = "daily_report.xlsx"
   if not os.path.exists(excel_file):
     print(f"❌ 未找到 {excel_file} 文件，跳过本次发送。")
@@ -311,7 +351,7 @@ def main():
 
   # 2. 判断周五并发送【周报】
   # 提示：周五时 weekday() 为 4
-  is_friday = datetime.now(CHINA_TZ).weekday() == 4
+  is_friday = now_china.weekday() == 4
 
   if is_friday:
     print("\n⏳ 等待 4 秒，确保邮件服务器安全接收下一封...")
