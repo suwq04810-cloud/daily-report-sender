@@ -8,7 +8,11 @@ from email.utils import formatdate
 import os
 import smtplib
 import time
+from zoneinfo import ZoneInfo
 import openpyxl
+
+
+CHINA_TZ = ZoneInfo("Asia/Shanghai")
 
 
 # =========================================================================
@@ -50,11 +54,9 @@ def get_signature_html():
 def generate_daily_html(wb):
   sheet = wb["1.日工作简报"] if "1.日工作简报" in wb.sheetnames else wb.active
 
-  title = (
-      str(sheet["A1"].value).strip()
-      if sheet["A1"].value
-      else f'工作&学习日报-{datetime.now().strftime("%m月%d日")}'
-  )
+  # 邮件标题始终使用北京时间当天日期，不再依赖 Excel A1 中的手工日期。
+  now_china = datetime.now(CHINA_TZ)
+  title = f"工作&学习日报-{now_china.month}月{now_china.day}日"
   today_work = str(sheet["A3"].value or "").strip().replace("\n", "<br>")
   tomorrow_plan = str(sheet["A5"].value or "").strip().replace("\n", "<br>")
   sig_html = get_signature_html()
@@ -134,7 +136,8 @@ def generate_weekly_html(wb):
   )
 
   # 标题带上动态日期，彻底防止邮件折叠
-  subject = f"苏文强学习周报-{datetime.now().strftime('%m月%d日')}"
+  now_china = datetime.now(CHINA_TZ)
+  subject = f"苏文强学习周报-{now_china.month}月{now_china.day}日"
 
   red_slash = '<span style="color: #FF0000; font-weight: bold;">/</span>'
 
@@ -308,7 +311,7 @@ def main():
 
   # 2. 判断周五并发送【周报】
   # 提示：周五时 weekday() 为 4
-  is_friday = datetime.now().weekday() == 4
+  is_friday = datetime.now(CHINA_TZ).weekday() == 4
 
   if is_friday:
     print("\n⏳ 等待 4 秒，确保邮件服务器安全接收下一封...")
