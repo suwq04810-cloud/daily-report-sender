@@ -351,19 +351,19 @@ def main():
 
   # 2. 判断周五并发送【周报】
   # 提示：周五时 weekday() 为 4
-  is_friday = now_china.weekday() == 4
+  # is_friday = now_china.weekday() == 4
 
-  if is_friday:
-    print("\n⏳ 等待 4 秒，确保邮件服务器安全接收下一封...")
-    time.sleep(4)
+  # if is_friday:
+  #   print("\n⏳ 等待 4 秒，确保邮件服务器安全接收下一封...")
+  #   time.sleep(4)
 
-    print("==============================================")
-    print(" [2/2] 正在投递：学习周报 ...")
-    weekly_subj, weekly_html = generate_weekly_html(wb)
-    send_email_message(weekly_subj, weekly_html, weekly_to, weekly_cc)
-    print("==============================================")
-  else:
-    print("今日非周五，跳过周报。")
+  #   print("==============================================")
+  #   print(" [2/2] 正在投递：学习周报 ...")
+  #   weekly_subj, weekly_html = generate_weekly_html(wb)
+  #   send_email_message(weekly_subj, weekly_html, weekly_to, weekly_cc)
+  #   print("==============================================")
+  # else:
+  #   print("今日非周五，跳过周报。")
 
 
 if __name__ == "__main__":
